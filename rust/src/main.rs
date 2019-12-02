@@ -2,19 +2,14 @@ use std::io::BufRead;
 
 fn main() {
     let input = std::fs::File::open("../input-1.txt").unwrap();
-    let fuel_total: i32 = std::io::BufReader::new(input)
+    let masses: Vec<i32> = std::io::BufReader::new(input)
         .lines()
         .map(|line| line.unwrap().parse::<i32>().unwrap())
-        .map(fuel)
-        .sum();
+        .collect();
+    let fuel_total: i32 = masses.clone().into_iter().map(fuel).sum();
     println!("Total fuel requirement: {}", fuel_total);
 
-    let input = std::fs::File::open("../input-1.txt").unwrap();
-    let fuel_total2: i32 = std::io::BufReader::new(input)
-        .lines()
-        .map(|line| line.unwrap().parse::<i32>().unwrap())
-        .map(fuel2)
-        .sum();
+    let fuel_total2: i32 = masses.into_iter().map(fuel2).sum();
     println!("Total fuel requirement: {}", fuel_total2);
 }
 
