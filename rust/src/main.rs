@@ -24,10 +24,10 @@ fn fuel(mass: i32) -> i32 {
 
 fn fuel2(mass: i32) -> i32 {
     let f = fuel(mass);
-    if f<=0 {
+    if f <= 0 {
         0
     } else {
-        f + fuel2(mass / 3 - 2)
+        f + fuel2(f)
     }
 }
 
