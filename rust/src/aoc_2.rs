@@ -10,15 +10,19 @@ pub fn aoc_2() {
     program[1] = 12;
     program[2] = 2;
     let output = run(program.clone().to_vec());
-    println!("Final output: {}", output);
+    println!("Computer output: {}", output);
     for i in 0..program.len() {
         for j in 0..program.len() {
             program[1] = i;
             program[2] = j;
 
             if 1969_0720 == run(program.clone().to_vec()) {
-                println!("To get output 19690720 use inputs {}, {}", i, j);
-                println!("Answer:  {}", i * 100 + j);
+                println!(
+                    "To get computer output 19690720 use inputs {}, {} => {}",
+                    i,
+                    j,
+                    i * 100 + j
+                );
             }
         }
     }

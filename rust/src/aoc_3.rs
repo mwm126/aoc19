@@ -56,7 +56,6 @@ fn find_distance(wire: &str, wire2: &str) -> i32 {
             curr_pos = next_point(curr_pos, dir);
             if point_set.contains(&curr_pos) {
                 let curr_dist = manhattan_distance(curr_pos);
-                println!("INTERSECTED OTHER WIRE AT DISTANCE {}", curr_dist);
                 min_dist = match min_dist {
                     None => Some(curr_dist),
                     Some(dist) => Some(std::cmp::min(dist, curr_dist)),
@@ -96,7 +95,6 @@ fn find_time(wire: &str, wire2: &str) -> i32 {
             if point_map.contains_key(&curr_pos) {
                 let other_time = point_map.get(&curr_pos).unwrap();
                 let total_time = other_time + curr_time;
-                println!("INTERSECTED OTHER WIRE AT TOTALTIME {}", total_time);
                 min_time = match min_time {
                     None => Some(total_time),
                     Some(time) => Some(std::cmp::min(time, total_time)),
