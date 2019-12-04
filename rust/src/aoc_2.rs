@@ -16,7 +16,7 @@ pub fn aoc_2() {
             program[1] = i;
             program[2] = j;
 
-            if 19690720 == run(program.clone().to_vec()) {
+            if 1969_0720 == run(program.clone().to_vec()) {
                 println!("To get output 19690720 use inputs {}, {}", i, j);
                 println!("Answer:  {}", i * 100 + j);
             }
