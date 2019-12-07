@@ -1,5 +1,5 @@
 pub fn aoc_5() {
-    let mut program = [
+    let program = [
         3, 225, 1, 225, 6, 6, 1100, 1, 238, 225, 104, 0, 1101, 69, 55, 225, 1001, 144, 76, 224,
         101, -139, 224, 224, 4, 224, 1002, 223, 8, 223, 1001, 224, 3, 224, 1, 223, 224, 223, 1102,
         60, 49, 225, 1102, 51, 78, 225, 1101, 82, 33, 224, 1001, 224, -115, 224, 4, 224, 1002, 223,
@@ -37,86 +37,81 @@ pub fn aoc_5() {
         1, 223, 108, 226, 677, 224, 102, 2, 223, 223, 1005, 224, 659, 101, 1, 223, 223, 8, 677,
         226, 224, 1002, 223, 2, 223, 1006, 224, 674, 1001, 223, 1, 223, 4, 223, 99, 226,
     ];
-    program[1] = 12;
-    program[2] = 2;
-    let output = run(program.clone().to_vec());
-    println!("Computer output: {}", output);
-    for i in 0..program.len() {
-        for j in 0..program.len() {
-            program[1] = i as i32;
-            program[2] = j as i32;
-
-            if 1969_0720 == run(program.clone().to_vec()) {
-                println!(
-                    "To get computer output 19690720 use inputs {}, {} => {}",
-                    i,
-                    j,
-                    i * 100 + j
-                );
-            }
-        }
-    }
+    execute(program.clone().to_vec(), 1);
+    execute(program.clone().to_vec(), 5);
 }
 
-const INPUT: i32 = 1;
-
-fn execute(mut program: Vec<i32>) -> Vec<i32> {
+fn execute(mut program: Vec<i32>, input: i32) -> i32 {
     let mut pc = 0;
+    let mut output = 0;
     while pc < program.len() {
         let opcode = program[pc] % 100;
-        let pm = ((program[pc] / 100) % 2) == 0;
-        let p2 = ((program[pc] / 1000) % 2) == 0;
-        println!("program [ {} {} {} {} {} {} {} {} {} {} ... ]",
-                 program[0],
-                 program[1],
-                 program[2],
-                 program[3],
-                 program[4],
-                 program[5],
-                 program[6],
-                 program[7],
-                 program[8],
-                 program[9]);
-        println!("@ {}: NOW GOING TO DO {} {} {}", pc, opcode, pm, p2);
+        let pm = ((program[pc] / 100) % 10) == 0;
+        let p2 = ((program[pc] / 1000) % 10) == 0;
         match opcode {
-            1 => add(&mut program, &mut pc, pm, p2),
-            2 => multiply(&mut program, &mut pc, pm, p2),
+            1 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                let add3 = program[pc + 3] as usize;
+                program[add3] = arg + arg2;
+                pc += 4;
+            }
+            2 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                let add3 = program[pc + 3] as usize;
+                program[add3] = arg * arg2;
+                pc += 4;
+            }
             3 => {
-                program[pc + 1] = INPUT;
+                let input_addr = program[pc + 1] as usize;
+                program[input_addr] = input;
+                println!("CHANGED point {} to value {}", input_addr, input);
                 pc += 2;
             }
             4 => {
-                println!("OUTPUT: {}", program[pc + 1]);
+                output = get_arg(&program, pc + 1, pm);
+                println!("OUTPUT: {}", output);
                 pc += 2;
             }
+            5 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                pc = if arg != 0 { arg2 as usize } else { pc + 3 };
+            }
+            6 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                pc = if arg == 0 { arg2 as usize } else { pc + 3 };
+            }
+            7 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                let add3 = program[pc + 3] as usize;
+                program[add3] = if arg < arg2 { 1 } else { 0 };
+                pc += 4;
+            }
+            8 => {
+                let arg = get_arg(&program, pc + 1, pm);
+                let arg2 = get_arg(&program, pc + 2, p2);
+                let add3 = program[pc + 3] as usize;
+                program[add3] = if arg == arg2 { 1 } else { 0 };
+                pc += 4;
+            }
             99 => break,
-            _ => panic!("Bad opcode"),
+            opcode => panic!("Bad opcode: {}", opcode),
         }
     }
-    program
+    output
 }
 
-fn run(program: Vec<i32>) -> i32 {
-    let program = execute(program);
-    program[0]
-}
-
-fn add(pr: &mut [i32], pc: &mut usize, pm: bool, p2: bool) {
-    let addr = pr[*pc + 1];
-    let add2 = pr[*pc + 2];
-    let add3 = pr[*pc + 3] as usize;
-    pr[add3] =
-        if pm { pr[addr as usize] } else { addr } + if p2 { pr[add2 as usize] } else { add2 };
-    *pc += 4;
-}
-
-fn multiply(pr: &mut [i32], pc: &mut usize, pm: bool, p2: bool) {
-    let addr = pr[*pc + 1];
-    let add2 = pr[*pc + 2];
-    let add3 = pr[*pc + 3] as usize;
-    pr[add3] =
-        if pm { pr[addr as usize] } else { addr } * if p2 { pr[add2 as usize] } else { add2 };
-    *pc += 4;
+fn get_arg(program: &[i32], pc: usize, pm: bool) -> i32 {
+    let addr = program[pc];
+    if pm {
+        program[addr as usize]
+    } else {
+        addr
+    }
 }
 
 #[cfg(test)]
@@ -124,15 +119,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn running_examples() {
-        assert_eq!(run([1, 0, 0, 0, 99].to_vec()), 2);
-        assert_eq!(run([2, 3, 0, 3, 99].to_vec()), 2);
-        assert_eq!(run([2, 4, 4, 5, 99, 0].to_vec()), 2);
-        assert_eq!(run([1, 1, 1, 4, 99, 5, 6, 0, 99].to_vec()), 30);
+    fn immediate_mode() {
+        assert_eq!(execute([1, 0, 0, 0, 99].to_vec(), 1), 0);
+        assert_eq!(execute([2, 3, 0, 3, 99].to_vec(), 1), 0);
+        assert_eq!(execute([2, 4, 4, 5, 99, 0].to_vec(), 1), 0);
+        assert_eq!(execute([1, 1, 1, 4, 99, 5, 6, 0, 99].to_vec(), 1), 0);
+    }
 
-        assert_eq!(
-            execute([1002, 4, 3, 4, 33].to_vec()),
-            vec![1002, 4, 3, 4, 99]
-        );
+    #[test]
+    fn jumps() {
+        let prog_0 = [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9];
+        assert_eq!(execute(prog_0.to_vec(), 0), 0);
+        assert_eq!(execute(prog_0.to_vec(), 42), 1);
+
+        let prog_1 = [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1];
+        assert_eq!(execute(prog_1.to_vec(), 0), 0);
+        assert_eq!(execute(prog_1.to_vec(), 42), 1);
+
+        let prog_2 = [
+            3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0,
+            0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
+            20, 1105, 1, 46, 98, 99,
+        ];
+        assert_eq!(execute(prog_2.to_vec(), 7), 999);
+        assert_eq!(execute(prog_2.to_vec(), 8), 1000);
+        assert_eq!(execute(prog_2.to_vec(), 9), 1001);
     }
 }
